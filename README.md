@@ -7,6 +7,12 @@
 - Attendance recording and summary.
 - REST API endpoints, accessible through CURL.
 
+# Clone the repository first
+
+```
+git clone https://github.com/Nyx003acvx/TEAS.git
+```
+
 ## Make sure you are in the directory where manage.py is located
 
 # Setup Instructions
