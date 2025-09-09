@@ -22,8 +22,8 @@
 
 ## Database Query
 
-==SQL query to retrieve all attendance records with employee information:
-SELECT 
+SQL query to retrieve all attendance records with employee information:
+[SELECT 
     a.id,
     u.first_name,
     u.last_name,
@@ -38,4 +38,4 @@ SELECT
 FROM TEAS_attendance a
 JOIN TEAS_employee e ON a.employee_id = e.id
 JOIN auth_user u ON e.user_id = u.id
-ORDER BY a.date DESC, a.created_at DESC;==
+ORDER BY a.date DESC, a.created_at DESC;]
