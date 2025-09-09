@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tenvelop Employee Attendance</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: blue; }
+        .error { color: red; }
+        .success { color: green; }
+        form { margin: 20px 0; }
+        input, button { margin: 5px 0; padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Tenvelop Employee Attendance System</h1>
+    
+    {% if user.is_authenticated %}
+        <div class="nav">
+            <a href="{% url 'mark_attendance_form' %}">Mark Attendance</a>
+            <a href="{% url 'attendance_summary' %}">Attendance Summary</a>
+            <a href="{% url 'logout' %}">Logout ({{ user.username }})</a>
+        </div>
+    {% endif %}
+    
+    {% block content %}
+    {% endblock %}
+</body>
+</html>
