@@ -1,7 +1,7 @@
 import json
 from datetime import date, datetime
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
@@ -13,7 +13,6 @@ from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.contrib.auth import logout as auth_logout
 
 from .models import Attendance, Employee
 from .serializers import (
@@ -106,7 +105,20 @@ def attendance_summary(request):
     attendances = Attendance.objects.filter(employee__user=request.user).order_by(
         "-date"
     )
-    return render(request, "TEAS/attendance_summary.html", {"attendances": attendances})
+
+    # Calculate statistics
+    total_days = attendances.count()
+    present_days = attendances.filter(status="present").count()
+    absent_days = attendances.filter(status="absent").count()
+
+    context = {
+        "attendances": attendances,
+        "total_days": total_days,
+        "present_days": present_days,
+        "absent_days": absent_days,
+    }
+
+    return render(request, "TEAS/attendance_summary.html", context)
 
 
 # Mark Attendance Form
@@ -194,3 +206,11 @@ def login_view(request):
             return render(request, "TEAS/login.html", {"error": "Invalid credentials"})
 
     return render(request, "TEAS/login.html")
+
+
+# logout View
+
+
+def logout_view(request):
+    logout(request)
+    return render(request, "TEAS/logout.html")
