@@ -1,13 +1,13 @@
 # Tenvelop Employee Attendance System
 
-# Features:
+# Features
 
 - User registration and authentication.
 - Employee attendance marking with auto location detection.
 - Attendance recording and summary.
 - REST API endpoints, accessible through CURL.
 
-## Make sure you are in the directory where manage.py is located.
+## Make sure you are in the directory where manage.py is located
 
 # Setup Instructions
 
@@ -35,14 +35,14 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-# API Endpoints:
+# API Endpoints
 
 - POST /api/create-user/ - Create new user
 - GET /api/users/ - Get all users
 - POST /api/mark-attendance/ - Mark attendance
 - GET /api/get-attendances/ - Get attendances
 
-# Database Query:
+# Database Query
 
 ```
 SELECT
@@ -61,5 +61,4 @@ FROM TEAS_attendance a
 JOIN TEAS_employee e ON a.employee_id = e.id
 JOIN auth_user u ON e.user_id = u.id
 ORDER BY a.date DESC, a.created_at DESC;
-
 ```
