@@ -1,0 +1,174 @@
+<!-- templates/TEAS/mark_attendance.html -->
+{% extends 'TEAS/base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold">Mark Your Attendance</h1>
+            <p class="lead">Record your daily attendance with location verification</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="h5 mb-0">{{ user.first_name }} {{ user.last_name }}</div>
+            <div class="text-light">{{ user.employee.employee_id }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card attendance-marker">
+            <div class="card-body">
+                <h4 class="card-title mb-4">Attendance Information</h4>
+                <div class="map-container">
+                    <div class="text-center">
+                        <i class="bi bi-geo-alt" style="font-size: 3rem; color: #4361ee;"></i>
+                        <p class="mt-2">Location will be captured automatically</p>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button id="markAttendanceBtn" class="btn btn-primary btn-lg" onclick="markAttendance()">
+                        <i class="bi bi-check-circle"></i> Mark Attendance
+                    </button>
+                </div>
+                <div id="attendanceMessage" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Today's Details</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <small class="text-muted">Date</small>
+                        <div class="fw-bold" id="currentDate"></div>
+                    </li>
+                    <li class="list-group-item">
+                        <small class="text-muted">Time</small>
+                        <div class="fw-bold" id="currentTime"></div>
+                    </li>
+                    <li class="list-group-item">
+                        <small class="text-muted">Status</small>
+                        <div class="fw-bold text-success">Ready to Mark</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Recent Attendance</h5>
+                <div id="recentAttendance">
+                    <!-- Recent attendance will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update current date and time
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('currentDate').textContent = now.toLocaleDateString();
+        document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+    }
+    
+    // Initialize date/time on page load
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // Mark attendance function
+    function markAttendance() {
+        const markBtn = document.getElementById('markAttendanceBtn');
+        const messageDiv = document.getElementById('attendanceMessage');
+        
+        // Disable button and show loading state
+        markBtn.disabled = true;
+        markBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Marking...';
+        
+        // Get current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    
+                    // Send attendance data to server
+                    fetch('/mark-attendance/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: JSON.stringify({
+                            latitude: latitude,
+                            longitude: longitude
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            showMessage(data.error, 'danger');
+                        } else {
+                            showMessage(data.message, 'success');
+                            // Reload recent attendance
+                            loadRecentAttendance();
+                        }
+                    })
+                    .catch(error => {
+                        showMessage('Error marking attendance. Please try again.', 'danger');
+                        console.error('Error:', error);
+                    })
+                    .finally(() => {
+                        resetButton();
+                    });
+                },
+                function(error) {
+                    showMessage('Unable to get location. Please enable location services.', 'danger');
+                    resetButton();
+                }
+            );
+        } else {
+            showMessage('Geolocation is not supported by this browser.', 'danger');
+            resetButton();
+        }
+    }
+    
+    // Reset button state
+    function resetButton() {
+        const markBtn = document.getElementById('markAttendanceBtn');
+        markBtn.disabled = false;
+        markBtn.innerHTML = '<i class="bi bi-check-circle"></i> Mark Attendance';
+    }
+    
+    // Show message
+    function showMessage(message, type) {
+        const messageDiv = document.getElementById('attendanceMessage');
+        messageDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        setTimeout(() => {
+            messageDiv.innerHTML = '';
+        }, 5000);
+    }
+    
+    // Load recent attendance
+    function loadRecentAttendance() {
+        // This would typically fetch recent attendance records via AJAX
+        // For now, we'll just show a placeholder
+        const recentDiv = document.getElementById('recentAttendance');
+        recentDiv.innerHTML = `
+            <div class="text-center py-3">
+                <i class="bi bi-clock-history text-primary" style="font-size: 2rem;"></i>
+                <p class="mt-2">Your recent attendance will appear here</p>
+            </div>
+        `;
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRecentAttendance();
+    });
+</script>
+{% endblock %}

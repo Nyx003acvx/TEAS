@@ -1,0 +1,96 @@
+<!-- templates/TEAS/attendance_summary.html -->
+{% extends 'TEAS/base.html' %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-5 fw-bold">Attendance Summary</h1>
+            <p class="lead">View your attendance records and history</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="h5 mb-0">{{ user.first_name }} {{ user.last_name }}</div>
+            <div class="text-light">{{ user.employee.employee_id }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="card-title">Attendance Records</h4>
+            <div>
+                <input type="date" class="form-control" id="filterDate">
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Check-in Time</th>
+                        <th>Check-out Time</th>
+                        <th>Location</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceTableBody">
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>{{ attendance.date }}</td>
+                        <td>
+                            <span class="status-badge status-{{ attendance.status }}">
+                                {{ attendance.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ attendance.check_in_time|default:"--" }}</td>
+                        <td>{{ attendance.check_out_time|default:"--" }}</td>
+                        <td>
+                            {% if attendance.latitude and attendance.longitude %}
+                            <a href="https://www.google.com/maps?q={{ attendance.latitude }},{{ attendance.longitude }}" target="_blank">
+                                <i class="bi bi-geo-alt"></i> View
+                            </a>
+                            {% else %}
+                            --
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No attendance records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- We'll calculate statistics in the view and pass them to the template -->
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Days</h5>
+                <h2 class="text-primary">{{ total_days }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Present Days</h5>
+                <h2 class="text-success">{{ present_days }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Absent Days</h5>
+                <h2 class="text-danger">{{ absent_days }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
