@@ -151,6 +151,18 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://teas.up.railway.app",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+ALLOWED_HOSTS = [
+    "teas.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+]
+
 # Logging
 LOGGING = {
     "version": 1,
